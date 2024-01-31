@@ -30,33 +30,36 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         Button signInButton = findViewById(R.id.googleAuthButton);
-
-        if (currentUser != null) {
-            // User is logged in
-            String uid = currentUser.getUid();
-            Intent i = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(i);
-
-            // You can perform additional actions or get user information here
-        } else {
-            signInButton.setOnClickListener(v -> {
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, 1);
-            });
-
-
-
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if(account != null){
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
+        else{
+            Log.d("LoginActivity", "account is null");
+        }
+
+
+        signInButton.setOnClickListener(v -> {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, 1);
+
+
+
+
+
         Button signOutButton = findViewById(R.id.button2);
-        signOutButton.setOnClickListener(v -> {
+        signOutButton.setOnClickListener(b -> {
             mGoogleSignInClient.signOut();
+
 
         });
 
 
-    }
+    });
 // Assume you have onActivityResult method in your activity
-
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
