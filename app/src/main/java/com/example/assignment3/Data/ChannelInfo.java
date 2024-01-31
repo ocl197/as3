@@ -1,5 +1,7 @@
 package com.example.assignment3.Data;
 
+import com.example.assignment3.Model.VideoManager;
+
 public class ChannelInfo {
     private String title;
     private String viewCount;
@@ -13,6 +15,7 @@ public class ChannelInfo {
     public ChannelInfo(){
 
     }
+
 
     public String getTitle() {
         return title;

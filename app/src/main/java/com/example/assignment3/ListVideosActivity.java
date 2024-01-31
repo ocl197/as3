@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.example.assignment3.Data.ChannelInfo;
 import com.example.assignment3.Data.FetchVideoInfoTask;
 import com.example.assignment3.Model.StringListHolder;
 import com.example.assignment3.Model.Video;
@@ -40,7 +42,8 @@ public class ListVideosActivity extends AppCompatActivity {
     private DocumentSnapshot documentSnapshot;
     FetchVideoInfoTask fetchVideoInfoTask = new FetchVideoInfoTask();
     private List<String> videoIdList = new ArrayList<>();
-
+    VideoManager videoManager = VideoManager.getInstance();
+    List<Video> getVideos = videoManager.getVideoList();
 
     List<String> myStrings = StringListHolder.getInstance().getStringList();
     @Override
@@ -58,8 +61,23 @@ public class ListVideosActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-
+        Log.d("VideoCount", String.valueOf(getCountVideos()));
         setContentView(R.layout.activity_list_videos);
+        listenerRegistration = channelInfoDocument.addSnapshotListener((documentSnapshot, e) -> {
+            if (e != null) {
+                // Handle the error
+                Log.e("ListVideosActivity", "Error getting channel info", e);
+                return;
+            }
+
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+                // DocumentSnapshot is ready, update UI
+                ChannelInfo channelInfo = documentSnapshot.toObject(ChannelInfo.class);
+                updateChannelInfoUI(channelInfo);
+            } else {
+                // Handle the case where the document doesn't exist
+            }
+        });
         videoList(channelVideoListDocument);
 
 
@@ -74,47 +92,20 @@ public class ListVideosActivity extends AppCompatActivity {
 
 
 
-    }
 
-//    private void videoList(DocumentReference channelVideoListDocument) {
-//        channelVideoListDocument.get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                DocumentSnapshot document = task.getResult();
-//
-//                if (document.exists()) {
-//                    // Assuming that the Firestore document contains a field named "videos"
-//                    List<String> videos = (List<String>) document.get("videoIds");
-//
-//                    if (videos != null) {
-//                        // Now 'videos' list contains the values from the Firestore document
-//                        // You can iterate over 'videos' and do whatever you need with the values
-//                        for (String video : videos) {
-//                            // Do something with each video value
-//                            if(video != null){
-//                                myStrings.add(video);
-//
-//                            }
-//
-//
-//                        }
-//
-//                    } else {
-//                        // Handle the case where 'videos' field is null in the Firestore document
-//                    }
-//                } else {
-//                    // Handle the case where the document doesn't exist
-//                }
-//            } else {
-//
-//                // Handle the case where getting the document was not successful
-//                Exception exception = task.getException();
-//                if (exception != null) {
-//                    exception.printStackTrace();
-//                }
-//            }
-//        });
-//
-//    }
+    }
+    private void updateChannelInfoUI(ChannelInfo channelInfo) {
+        TextView channelName = findViewById(R.id.channelInfo);
+        channelName.setText("Channel Name: " + channelInfo.getTitle());
+
+        TextView viewCountTextView = findViewById(R.id.viewCount);
+        viewCountTextView.setText("View Count: " + channelInfo.getViewCount());
+
+        TextView videoCountTextView = findViewById(R.id.videoCount);
+        videoCountTextView.setText("Video Count: " + channelInfo.getVideoCount());
+
+        Log.d("VideoCount", String.valueOf(getCountVideos()));
+    }
     private void videoList(DocumentReference channelVideoListDocument) {
         channelVideoListDocument.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -142,16 +133,16 @@ public class ListVideosActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchVideoInfoAndUpdateUI() {
+    public void fetchVideoInfoAndUpdateUI() {
         new FetchVideoInfoTask() {
             @Override
             protected void onPostExecute(Void result) {
                 VideoManager videoManager = VideoManager.getInstance();
                 List<Video> getVideos = videoManager.getVideoList();
-                Log.d("getVideos", String.valueOf(getVideos.size()));
+
 
                 // Update the UI with the new data
-                RecyclerView recyclerView = findViewById(R.id.recyclerView);
+                RecyclerView recyclerView = findViewById(R.id.recylerview);
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListVideosActivity.this));
                 recyclerView.setAdapter(new VideoAdapter(getVideos));
                 Button button = findViewById(R.id.mainMenuButton);
@@ -167,7 +158,11 @@ public class ListVideosActivity extends AppCompatActivity {
     }
 
 
+ public int getCountVideos(){
 
+        List<Video> getVideos = videoManager.getVideoList();
+        return getVideos.size();
+ }
 
 
 }

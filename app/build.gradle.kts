@@ -57,5 +57,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-firestore:23.0.4")
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testImplementation ("org.mockito:mockito-core:3.11.2")
 
 }
